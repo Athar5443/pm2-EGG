@@ -10,7 +10,7 @@
     "description": "AtharsCloud WhatsApp Bot Panel\r\nIni adalah panel WhatsApp Bot AtharsCloud yang dibangun dengan Node.js 20 untuk memberikan kinerja yang cepat dan efisien. Panel ini didukung oleh PM2, manajer proses yang memastikan aplikasi Anda berjalan stabil, dengan kemampuan untuk melakukan auto-restart dan pemantauan real-time. Dengan teknologi terkini, panel ini menawarkan kemudahan dalam mengelola bot WhatsApp, menjaga uptime yang tinggi, serta memberikan pengalaman yang lebih baik bagi pengguna. Cocok untuk berbagai kebutuhan otomasi dan interaksi melalui WhatsApp, panel ini menjadikan pengelolaan bot lebih sederhana dan profesional.",
     "features": null,
     "docker_images": {
-        "ghcr.io\/indolifemd\/indo-life:main": "ghcr.io\/indolifemd\/indo-life:main"
+        "ghcr.io\/athar5443\/pm2-egg:main": "ghcr.io\/athar5443\/pm2-egg:main"
     },
     "file_denylist": [],
     "startup": "if [[ -d .git ]] && [[ {{AUTO_UPDATE}} == \"1\" ]]; then git pull; fi; if [[ ! -z ${NODE_PACKAGES} ]]; then \/usr\/local\/bin\/npm install ${NODE_PACKAGES}; fi; if [[ ! -z ${UNNODE_PACKAGES} ]]; then \/usr\/local\/bin\/npm uninstall ${UNNODE_PACKAGES}; fi; if [ -f \/home\/container\/package.json ]; then \/usr\/local\/bin\/npm install; fi; pm2 start {{JS_FILE}}; pm2 logs",
