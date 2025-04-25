@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/0000000/egg-pm2-banner.png" alt="Egg PM2 by AtharsCloud" width="600">
+  <img src="https://pm2.keymetrics.io/assets/pm2-logo-1.png" alt="Egg PM2 by AtharsCloud" width="600">
 </p>
 
 <h1 align="center">
