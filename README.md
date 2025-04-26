@@ -37,7 +37,7 @@ Dengan desain elegan dan konfigurasi modern, egg ini adalah alat yang sempurna u
 - Navigasikan ke menu **Eggs** dan impor file `.json` egg yang disediakan.  
 
 ### 2️⃣ **Buat Server**  
-- Pilih Egg **PM2 by IndoLife** saat membuat server.  
+- Pilih Egg **PM2 by AtharsCloud** saat membuat server.  
 - Gunakan Docker image berikut:  
   ```bash
   ghcr.io/athar5443/pm2-egg:main
