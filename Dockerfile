@@ -56,8 +56,6 @@ RUN mkdir -p $NVM_DIR \
     && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
     && nvm use default \
-    # Install Global Packages via NVM's NPM
-    && npm install -g npm@latest pm2 yarn pnpm
 
 # Set PATH agar Node/NPM/PM2 bisa dipanggil langsung tanpa 'source nvm.sh' terus menerus
 ENV NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
