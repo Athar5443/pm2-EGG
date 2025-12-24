@@ -1,51 +1,62 @@
-# Use official Node.js 20 image based on Debian Bullseye
-FROM node:20-bullseye-slim
+FROM debian:bullseye-slim
 
-# Metadata about the image
 LABEL author="athar" \
       maintainer="athar@atharr.my.id" \
-      description="A Docker image for running Node.js applications with PM2 and essential utilities."
+      description="AtharsCloud Ultimate: NVM (Dynamic Node), Cloudflared, Python, Go, Rust & High Utilities."
 
-# Update and install required dependencies
-RUN apt update && apt -y install \
-        ffmpeg \
-        iproute2 \
-        git \
-        sqlite3 \
-        libsqlite3-dev \
-        python3 \
-        python3-dev \
-        ca-certificates \
-        dnsutils \
-        tzdata \
-        zip \
-        tar \
-        htop \
-        curl \
-        build-essential \
-        libtool \
-        iputils-ping \
-    && rm -rf /var/lib/apt/lists/*  # Clean up APT cache to reduce image size
+ENV DEBIAN_FRONTEND=noninteractive \
+    NVM_DIR=/usr/local/nvm \
+    NODE_VERSION=20.11.0
 
-# Create a non-root user 'container' and set home directory
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl wget git zip unzip tar gzip bzip2 p7zip-full zstd \
+        jq nano vim bc time sudo lsb-release ca-certificates \
+        net-tools iproute2 iputils-ping dnsutils \
+        nmap iperf3 speedtest-cli aria2 \
+        htop btop ncdu \
+        ffmpeg imagemagick graphicsmagick webp mediainfo \
+        build-essential libtool make gcc g++ \
+        mariadb-client postgresql-client redis-tools sqlite3 libsqlite3-dev \
+        python3 python3-pip python3-dev python3-venv \
+        tesseract-ocr \
+        fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 \
+        libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 \
+        libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 \
+        libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 \
+        libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 \
+        libxrandr2 libxrender1 libxss1 libxtst6 \
+        fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst \
+        fonts-freefont-ttf fonts-emoji \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip3 install --upgrade pip speedtest-cli
+
+
+RUN curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb \
+    && dpkg -i cloudflared.deb \
+    && rm cloudflared.deb
+
+
+RUN mkdir -p $NVM_DIR \
+    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
+    && . $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default \
+    && npm install -g npm@latest pm2 yarn pnpm
+
+# Tambahkan NVM ke PATH agar bisa dipanggil user
+ENV NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+
 RUN useradd -m -d /home/container container
 
-# Install the latest npm and PM2 globally
-RUN npm install -g npm@latest \
-    && npm install -g pm2
-
-# Set the user to 'container' to run the application
 USER container
-
-# Set environment variables for user and home directory
 ENV USER=container \
     HOME=/home/container
 
-# Set working directory to the home directory of the container
 WORKDIR /home/container
 
-# Copy the entrypoint script into the container
 COPY ./entrypoint.sh /entrypoint.sh
 
-# Default command to run the entrypoint script
 CMD [ "/bin/bash", "/entrypoint.sh" ]
