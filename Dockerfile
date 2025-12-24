@@ -20,6 +20,7 @@ RUN apt update && apt -y install \
         tzdata \
         zip \
         tar \
+        htop \
         curl \
         build-essential \
         libtool \
