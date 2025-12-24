@@ -17,12 +17,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         nmap iperf3 speedtest-cli aria2 \
     && rm -rf /var/lib/apt/lists/*
 
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ffmpeg imagemagick graphicsmagick webp mediainfo \
         build-essential libtool make gcc g++ \
     && rm -rf /var/lib/apt/lists/*
-
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         mariadb-client postgresql-client redis-tools sqlite3 libsqlite3-dev \
@@ -42,11 +40,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         fonts-freefont-ttf fonts-noto-color-emoji \
     && rm -rf /var/lib/apt/lists/*
 
-
 RUN curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb \
     && dpkg -i cloudflared.deb \
     && rm cloudflared.deb
 
+SHELL ["/bin/bash", "-c"]
 
 RUN mkdir -p $NVM_DIR \
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
@@ -56,9 +54,9 @@ RUN mkdir -p $NVM_DIR \
     && nvm use default \
     && npm install -g npm@latest pm2 yarn pnpm
 
+# Tambahkan NVM ke PATH
 ENV NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-
 
 RUN useradd -m -d /home/container container
 
