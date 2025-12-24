@@ -8,27 +8,27 @@ LABEL author="athar" \
 # Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive \
     NVM_DIR=/usr/local/nvm \
-    NODE_VERSION=22
+    NODE_VERSION=21
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
         curl wget git zip unzip tar gzip bzip2 p7zip-full zstd \
         jq nano vim bc time sudo lsb-release ca-certificates \
         net-tools iproute2 iputils-ping dnsutils \
         nmap iperf3 speedtest-cli aria2 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
         ffmpeg imagemagick graphicsmagick webp mediainfo \
         build-essential libtool make gcc g++ \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
         mariadb-client postgresql-client redis-tools sqlite3 libsqlite3-dev \
         python3 python3-pip python3-dev python3-venv \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install --upgrade pip speedtest-cli
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
         tesseract-ocr \
         fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 \
         libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 \
@@ -40,6 +40,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         fonts-freefont-ttf fonts-noto-color-emoji \
     && rm -rf /var/lib/apt/lists/*
 
+# ==============================================================================
+# 5. INSTALL CLOUDFLARE TUNNEL
+# ==============================================================================
 RUN curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb \
     && dpkg -i cloudflared.deb \
     && rm cloudflared.deb
