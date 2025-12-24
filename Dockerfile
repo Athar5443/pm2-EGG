@@ -8,7 +8,7 @@ LABEL author="athar" \
 # Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive \
     NVM_DIR=/usr/local/nvm \
-    NODE_VERSION=20.11.0
+    NODE_VERSION=22
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl wget git zip unzip tar gzip bzip2 p7zip-full zstd \
