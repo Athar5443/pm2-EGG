@@ -8,7 +8,7 @@ LABEL author="athar" \
 # Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive \
     NVM_DIR=/usr/local/nvm \
-    NODE_VERSION=21
+    NODE_VERSION=22.12.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
         curl wget git zip unzip tar gzip bzip2 p7zip-full zstd \
