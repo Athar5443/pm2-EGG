@@ -10,9 +10,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     HOME=/home/container \
     NODE_INSTALL_DIR=/home/container/node \
     BUN_INSTALL=/usr/local/bun \
-    GO_VERSION=1.24.0
+    GO_VERSION=1.24.0 \
+    PLAYWRIGHT_BROWSERS_PATH=/usr/local/share/playwright
 
-# PATH Setup
 ENV PATH="$NODE_INSTALL_DIR/bin:$BUN_INSTALL/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -51,6 +51,8 @@ RUN mkdir -p $BUN_INSTALL \
     && curl -fsSL https://bun.sh/install | bash \
     && chown -R root:root $BUN_INSTALL \
     && chmod -R 755 $BUN_INSTALL
+
+RUN mkdir -p $PLAYWRIGHT_BROWSERS_PATH && chmod -R 777 $PLAYWRIGHT_BROWSERS_PATH
 
 RUN useradd -m -d /home/container container
 RUN mkdir -p $NODE_INSTALL_DIR && chown -R container:container $NODE_INSTALL_DIR
