@@ -3,24 +3,29 @@ FROM debian:bullseye-slim
 # Metadata
 LABEL author="athar" \
       maintainer="athar@atharr.my.id" \
-      description="AtharsCloud Ultimate: Node.js, Puppeteer, Playwright, Go 1.24, Bun, Python & High Utilities."
+      description="AtharsCloud Ultimate: Node.js, Playwright, Go 1.24, Python 3.13 & High Utilities."
 
 ENV DEBIAN_FRONTEND=noninteractive \
     USER=container \
     HOME=/home/container \
     NODE_INSTALL_DIR=/home/container/node \
     BUN_INSTALL=/usr/local/bun \
+    PLAYWRIGHT_BROWSERS_PATH=/usr/local/share/playwright \
+    # Versi Software
     GO_VERSION=1.24.0 \
-    PLAYWRIGHT_BROWSERS_PATH=/usr/local/share/playwright
+    PYTHON_VERSION=3.13.0
 
+# PATH Setup
 ENV PATH="$NODE_INSTALL_DIR/bin:$BUN_INSTALL/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl wget git zip unzip tar gzip bzip2 p7zip-full zstd \
         jq nano vim sudo ca-certificates gnupg lsb-release \
         net-tools iputils-ping dnsutils \
-        build-essential make gcc g++ \
-        python3 python3-pip python3-dev python3-venv \
+        build-essential make gcc g++ libssl-dev zlib1g-dev \
+        libbz2-dev libreadline-dev libsqlite3-dev llvm \
+        libncurses5-dev libncursesw5-dev xz-utils tk-dev \
+        libffi-dev liblzma-dev python3-openssl \
         ffmpeg imagemagick graphicsmagick webp mediainfo \
     && mkdir -p --mode=0755 /usr/share/keyrings \
     && curl -fsSL https://pkg.cloudflare.com/cloudflare-public-v2.gpg | gpg --dearmor > /usr/share/keyrings/cloudflare-public-v2.gpg \
@@ -41,11 +46,23 @@ RUN apt-get install -y --no-install-recommends \
         libgif-dev librsvg2-dev \
         libenchant-2-2 libsecret-1-0 libmanette-0.2-0 xdg-utils \
     && rm -rf /var/lib/apt/lists/*
-
 RUN cd /tmp \
     && wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz || wget https://go.dev/dl/go1.23.4.linux-amd64.tar.gz \
     && tar -C /usr/local -xzf go*.linux-amd64.tar.gz \
     && rm go*.linux-amd64.tar.gz
+
+RUN cd /tmp \
+    && wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz \
+    && tar xzf Python-${PYTHON_VERSION}.tgz \
+    && cd Python-${PYTHON_VERSION} \
+    && ./configure --enable-optimizations \
+    && make altinstall \
+    && ln -sf /usr/local/bin/python3.13 /usr/local/bin/python3 \
+    && ln -sf /usr/local/bin/python3.13 /usr/local/bin/python \
+    && ln -sf /usr/local/bin/pip3.13 /usr/local/bin/pip3 \
+    && ln -sf /usr/local/bin/pip3.13 /usr/local/bin/pip \
+    && cd .. && rm -rf Python-${PYTHON_VERSION}* \
+    && pip3 install --upgrade pip
 
 RUN mkdir -p $BUN_INSTALL \
     && curl -fsSL https://bun.sh/install | bash \
