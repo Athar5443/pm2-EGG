@@ -26,7 +26,6 @@ if [ ! -z "${NODE_VERSION}" ]; then
     TARGET_VER=$(curl -s https://nodejs.org/dist/index.json | jq -r 'map(select(.version)) | .[] | select(.version | startswith("v'${NODE_VERSION}'")) | .version' 2>/dev/null | head -n 1)
 
     if [ -z "$TARGET_VER" ]; then
-        echo "[AtharsCloud] JQ gagal, mencoba metode alternatif..."
         TARGET_VER=$(curl -s https://nodejs.org/dist/index.json | grep -o '"version":"v'${NODE_VERSION}'[^"]*"' | head -n 1 | cut -d'"' -f4)
     fi
 
@@ -57,10 +56,10 @@ if [ ! -z "${NODE_VERSION}" ]; then
             
             echo "[AtharsCloud] Downloading Playwright Browsers..."
             export PLAYWRIGHT_BROWSERS_PATH="/usr/local/share/playwright"
-            "$NODE_DIR/bin/npx" --yes playwright install --with-deps
+            "$NODE_DIR/bin/npx" --yes playwright install
             
         else
-            echo "[AtharsCloud] ERROR DOWNLOAD. Cek koneksi atau versi Node.js."
+            echo "[AtharsCloud] ERROR DOWNLOAD. Cek koneksi."
         fi
         cd /home/container
     fi
@@ -84,7 +83,6 @@ echo "========================================"
 echo "   AtharsCloud System Ready (Ultimate)  "
 echo "========================================"
 echo "Node       : $(node -v 2>/dev/null || echo 'ERROR')"
-# Cek Playwright langsung dari bin global, atau gunakan npx --yes untuk info
 echo "Playwright : $(playwright --version 2>/dev/null || npx --yes playwright --version 2>/dev/null || echo 'Not Installed')"
 echo "Browser Dir: $PLAYWRIGHT_BROWSERS_PATH"
 echo "----------------------------------------"
