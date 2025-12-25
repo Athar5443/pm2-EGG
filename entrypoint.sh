@@ -1,79 +1,61 @@
 #!/bin/bash
 
 NODE_DIR="/home/container/node"
-export PATH="$NODE_DIR/bin:$PATH"
+BUN_DIR="/usr/local/bun"
+
+echo "export PATH=\"$NODE_DIR/bin:$BUN_DIR/bin:\$PATH\"" > /home/container/.bashrc
+echo "export NODE_PATH=\"$NODE_DIR/lib/node_modules\"" >> /home/container/.bashrc
+
+export PATH="$NODE_DIR/bin:$BUN_DIR/bin:$PATH"
 
 if [ ! -z "${NODE_VERSION}" ]; then
-    if [ -f "$NODE_DIR/bin/node" ]; then
-        CURRENT_NODE_VER=$(node -v | cut -d 'v' -f 2)
+    if [ -x "$NODE_DIR/bin/node" ]; then
+        CURRENT_VER=$("$NODE_DIR/bin/node" -v | cut -d 'v' -f 2)
     else
-        CURRENT_NODE_VER="none"
+        CURRENT_VER="none"
     fi
 
-    if [[ "$CURRENT_NODE_VER" != "$NODE_VERSION"* ]]; then
-        echo "[AtharsCloud] Mendeteksi perubahan versi Node.js..."
-        echo "[AtharsCloud] Mengunduh Node.js v${NODE_VERSION}..."
-
+    if [[ "$CURRENT_VER" != "$NODE_VERSION"* ]]; then
+        echo "[AtharsCloud] Installing Node.js v${NODE_VERSION}..."
+        
         rm -rf $NODE_DIR/*
-
+        
         cd /tmp
         curl -sL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz -o node.tar.gz
         
-        if [ $? -ne 0 ]; then
-             echo "[AtharsCloud] Gagal download Node v${NODE_VERSION}. Cek koneksi/versi."
+        if [ $? -eq 0 ]; then
+            tar -xf node.tar.gz --strip-components=1 -C $NODE_DIR
+            rm node.tar.gz
+            echo "[AtharsCloud] Node.js updated."
+            
+            echo "[AtharsCloud] Installing PM2 & Package Managers..."
+            "$NODE_DIR/bin/npm" install -g npm@latest pm2 pnpm yarn
         else
-            echo "[AtharsCloud] Mengekstrak..."
-            tar -xf node.tar.gz
-            mv node-v${NODE_VERSION}-linux-x64/* $NODE_DIR/
-            rm -rf node.tar.gz node-v${NODE_VERSION}-linux-x64
-            
-            echo "[AtharsCloud] Node.js siap: $(node -v)"
-            
-            echo "[AtharsCloud] Menginstall Package Manager Global (npm, pm2, yarn)..."
-            npm install -g npm@latest pm2 yarn pnpm
+            echo "[AtharsCloud] GAGAL download Node.js. Cek koneksi internet server."
         fi
         cd /home/container
-    else
-        echo "[AtharsCloud] Node.js Version: $(node -v)"
     fi
-else
-    echo "[AtharsCloud] NODE_VERSION tidak diatur."
 fi
 
-if [[ "${ENABLE_CF_TUNNEL}" == "true" ]]; then
-    if [ ! -z "${CF_TOKEN}" ]; then
-        echo "[AtharsCloud] Menjalankan Cloudflare Tunnel..."
-        
-        pkill -f cloudflared
-
-        # Hapus log lama
-        rm -f /home/container/.cloudflared.log
-
-        # Jalankan di background (nohup &) agar tidak mengganggu shell
-        nohup cloudflared tunnel run --token ${CF_TOKEN} > /home/container/.cloudflared.log 2>&1 &
-        
-        sleep 2
-        
-        if pgrep -x "cloudflared" > /dev/null; then
-            echo "[AtharsCloud] Tunnel BERJALAN di Background!"
-            echo "[AtharsCloud] (Cek .cloudflared.log jika koneksi bermasalah)"
-        else
-            echo "[AtharsCloud] GAGAL menjalankan Tunnel. Cek Token Anda."
-        fi
-    else
-        echo "[AtharsCloud] ERROR: Token CF_TOKEN kosong, tapi Tunnel diaktifkan."
-    fi
-else
-    echo "[AtharsCloud] Cloudflare Tunnel: OFF"
+if [[ "${ENABLE_CF_TUNNEL}" == "true" ]] && [[ ! -z "${CF_TOKEN}" ]]; then
+    echo "[AtharsCloud] Starting Tunnel..."
+    pkill -f cloudflared 2>/dev/null
+    rm -f /home/container/.cloudflared.log
+    
+    nohup cloudflared tunnel run --token ${CF_TOKEN} > /home/container/.cloudflared.log 2>&1 &
 fi
 
+export USER=container
+export HOME=/home/container
+
 echo "========================================"
-echo "   AtharsCloud Environment   "
+echo "   AtharsCloud System Ready             "
 echo "========================================"
-echo "System Ready."
-echo "Silakan ketik perintah Anda (node, pm2, git, ls, dll)."
+echo "Node : $(node -v 2>/dev/null || echo 'ERROR')"
+echo "PM2  : $(pm2 -v 2>/dev/null || echo 'ERROR')"
+echo "Bun  : $(bun -v 2>/dev/null || echo 'ERROR')"
+echo "Go   : $(go version 2>/dev/null || echo 'ERROR')"
 echo "----------------------------------------"
 
-cd /home/container || exit
-
-exec ${STARTUP}
+# Buka Bash Shell (Terminal Interaktif)
+exec /bin/bash
