@@ -17,73 +17,63 @@ if [ ! -z "${NODE_VERSION}" ]; then
         rm -rf $NODE_DIR/*
 
         cd /tmp
-        # Download binary resmi
         curl -sL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz -o node.tar.gz
         
         if [ $? -ne 0 ]; then
-             echo "[AtharsCloud] Gagal download Node v${NODE_VERSION}. Cek versi!"
+             echo "[AtharsCloud] Gagal download Node v${NODE_VERSION}. Cek koneksi/versi."
         else
             echo "[AtharsCloud] Mengekstrak..."
             tar -xf node.tar.gz
             mv node-v${NODE_VERSION}-linux-x64/* $NODE_DIR/
             rm -rf node.tar.gz node-v${NODE_VERSION}-linux-x64
             
-            echo "[AtharsCloud] Node.js updated to $(node -v)!"
+            echo "[AtharsCloud] Node.js siap: $(node -v)"
             
-            echo "[AtharsCloud] Installing PM2, Yarn, PNPM..."
+            echo "[AtharsCloud] Menginstall Package Manager Global (npm, pm2, yarn)..."
             npm install -g npm@latest pm2 yarn pnpm
         fi
         cd /home/container
     else
-        echo "[AtharsCloud] Node.js version: $(node -v)"
+        echo "[AtharsCloud] Node.js Version: $(node -v)"
     fi
 else
-    echo "[AtharsCloud] NODE_VERSION variable not set."
+    echo "[AtharsCloud] NODE_VERSION tidak diatur."
 fi
 
-# --- 2. LOGIKA CLOUDFLARE TUNNEL ---
 if [[ "${ENABLE_CF_TUNNEL}" == "true" ]]; then
     if [ ! -z "${CF_TOKEN}" ]; then
-        echo "[AtharsCloud] Starting Cloudflare Tunnel..."
+        echo "[AtharsCloud] Menjalankan Cloudflare Tunnel..."
         
-        # Hapus log lama jika ada
+        pkill -f cloudflared
+
+        # Hapus log lama
         rm -f /home/container/.cloudflared.log
 
-        # Jalankan tunnel di background
+        # Jalankan di background (nohup &) agar tidak mengganggu shell
         nohup cloudflared tunnel run --token ${CF_TOKEN} > /home/container/.cloudflared.log 2>&1 &
         
-        sleep 3
+        sleep 2
         
         if pgrep -x "cloudflared" > /dev/null; then
-            echo "[AtharsCloud] Cloudflare Tunnel BERJALAN!"
-            echo "(Cek file .cloudflared.log untuk detail koneksi)"
+            echo "[AtharsCloud] Tunnel BERJALAN di Background!"
+            echo "[AtharsCloud] (Cek .cloudflared.log jika koneksi bermasalah)"
         else
-            echo "[AtharsCloud] GAGAL menjalankan Tunnel. Cek Token atau Log."
-            cat /home/container/.cloudflared.log
+            echo "[AtharsCloud] GAGAL menjalankan Tunnel. Cek Token Anda."
         fi
     else
-        echo "[AtharsCloud] ERROR: Token Cloudflare (CF_TOKEN) kosong!"
+        echo "[AtharsCloud] ERROR: Token CF_TOKEN kosong, tapi Tunnel diaktifkan."
     fi
 else
-    echo "[AtharsCloud] Cloudflare Tunnel dinonaktifkan."
+    echo "[AtharsCloud] Cloudflare Tunnel: OFF"
 fi
 
-clear
 echo "========================================"
-echo "   AtharsCloud Ultimate Node.js Panel   "
+echo "   AtharsCloud Environment   "
 echo "========================================"
-
-# Tampilkan versi Runtime
-echo "Node.js : $(node -v 2>/dev/null || echo 'Not Installed')"
-echo "Bun     : $(bun -v 2>/dev/null || echo 'Not Installed')"
-echo "Python  : $(python3 --version 2>/dev/null || echo 'Not Installed')"
+echo "System Ready."
+echo "Silakan ketik perintah Anda (node, pm2, git, ls, dll)."
 echo "----------------------------------------"
 
 cd /home/container || exit
 
-# Replace variable startup Pterodactyl
-MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
-echo "Startup Command: ${MODIFIED_STARTUP}"
-
-# Jalankan Server
-eval ${MODIFIED_STARTUP}
+exec ${STARTUP}
