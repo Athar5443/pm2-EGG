@@ -8,10 +8,19 @@ export PLAYWRIGHT_BROWSERS_PATH="/usr/local/share/playwright"
 mkdir -p "$NODE_DIR"
 export PATH="$NODE_DIR/bin:$BUN_DIR/bin:$GO_DIR/bin:$PATH"
 
+echo "export PATH=\"$NODE_DIR/bin:$BUN_DIR/bin:$GO_DIR/bin:\$PATH\"" > /home/container/.bashrc
+echo "export NODE_PATH=\"$NODE_DIR/lib/node_modules\"" >> /home/container/.bashrc
+echo "export PLAYWRIGHT_BROWSERS_PATH=\"$PLAYWRIGHT_BROWSERS_PATH\"" >> /home/container/.bashrc
+
 if [ ! -z "${NODE_VERSION}" ]; then
     [ -x "$NODE_DIR/bin/node" ] && CURRENT_VER=$("$NODE_DIR/bin/node" -v) || CURRENT_VER="none"
     TARGET_VER=$(curl -s https://nodejs.org/dist/index.json | jq -r 'map(select(.version)) | .[] | select(.version | startswith("v'${NODE_VERSION}'")) | .version' 2>/dev/null | head -n 1)
-    if [[ "$CURRENT_VER" != "$TARGET_VER" ]] && [ ! -z "$TARGET_VER" ]; then
+    
+    if [ -z "$TARGET_VER" ] || [ "$TARGET_VER" == "null" ]; then
+         if [[ "${NODE_VERSION}" == v* ]]; then TARGET_VER="${NODE_VERSION}"; else TARGET_VER="v${NODE_VERSION}.0.0"; fi
+    fi
+
+    if [[ "$CURRENT_VER" != "$TARGET_VER" ]]; then
         rm -rf $NODE_DIR/* && cd /tmp
         curl -fL "https://nodejs.org/dist/${TARGET_VER}/node-${TARGET_VER}-linux-x64.tar.gz" -o node.tar.gz
         tar -xf node.tar.gz --strip-components=1 -C "$NODE_DIR" && rm node.tar.gz
