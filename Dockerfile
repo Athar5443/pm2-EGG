@@ -1,8 +1,6 @@
 FROM debian:bullseye-slim
 
-LABEL author="athar" \
-      maintainer="athar@atharr.my.id" \
-      description="AtharsCloud Ultimate: Node.js, Playwright, Go 1.24, Python 3.13 & High Utilities."
+LABEL author="athar" maintainer="athar@atharr.my.id"
 
 ENV DEBIAN_FRONTEND=noninteractive \
     USER=container \
@@ -45,14 +43,20 @@ RUN cd /tmp && wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-$
     && ln -sf /usr/local/bin/pip3.13 /usr/local/bin/pip3 \
     && cd .. && rm -rf Python-${PYTHON_VERSION}*
 
-RUN mkdir -p $BUN_INSTALL && curl -fsSL https://bun.sh/install | bash \
-    && mv /root/.bun/bin/bun $BUN_INSTALL/bun && rm -rf /root/.bun
+RUN cd /tmp && wget https://github.com/oven-sh/bun/releases/latest/download/bun-linux-x64.zip \
+    && unzip bun-linux-x64.zip \
+    && mkdir -p $BUN_INSTALL/bin \
+    && mv bun-linux-x64/bun $BUN_INSTALL/bin/bun \
+    && chmod +x $BUN_INSTALL/bin/bun \
+    && rm -rf bun-linux-x64 bun-linux-x64.zip
 
 RUN mkdir -p $PLAYWRIGHT_BROWSERS_PATH \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
+    && npm install -g playwright \
     && npx playwright install --with-deps \
-    && apt-get purge -y nodejs && apt-get autoremove -y
+    && apt-get purge -y nodejs && apt-get autoremove -y \
+    && chmod -R 777 $PLAYWRIGHT_BROWSERS_PATH
 
 RUN useradd -m -d /home/container container
 RUN mkdir -p $NODE_INSTALL_DIR && chown -R container:container $NODE_INSTALL_DIR
