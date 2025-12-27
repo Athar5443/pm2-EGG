@@ -16,7 +16,7 @@ ENV PATH="$NODE_INSTALL_DIR/bin:$BUN_INSTALL/bin:/usr/local/go/bin:/usr/local/sb
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl wget git zip unzip tar gzip bzip2 p7zip-full zstd \
         jq nano vim sudo ca-certificates gnupg lsb-release \
-        net-tools iputils-ping dnsutils \
+        net-tools iputils-ping dnsutils procps \
         build-essential make gcc g++ libssl-dev zlib1g-dev \
         libbz2-dev libreadline-dev libsqlite3-dev \
         libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev \
