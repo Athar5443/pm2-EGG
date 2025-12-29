@@ -20,7 +20,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential make gcc g++ libssl-dev zlib1g-dev \
         libbz2-dev libreadline-dev libsqlite3-dev \
         libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev \
-        ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libavdevice-dev imagemagick graphicsmagick webp mediainfo \
+        ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libavdevice-dev \
+        libwebp-dev libjpeg-dev libpng-dev libgif-dev \
+        imagemagick graphicsmagick webp mediainfo \
     && mkdir -p --mode=0755 /usr/share/keyrings \
     && curl -fsSL https://pkg.cloudflare.com/cloudflare-public-v2.gpg | gpg --dearmor > /usr/share/keyrings/cloudflare-public-v2.gpg \
     && echo 'deb [signed-by=/usr/share/keyrings/cloudflare-public-v2.gpg] https://pkg.cloudflare.com/cloudflared any main' | tee /etc/apt/sources.list.d/cloudflared.list \
