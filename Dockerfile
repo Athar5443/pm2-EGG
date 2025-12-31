@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:trixie-slim
 
 LABEL author="athar" maintainer="athar@atharr.my.id"
 
@@ -30,8 +30,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN apt-get install -y --no-install-recommends \
         fonts-liberation fonts-noto-color-emoji libfontconfig1 libfreetype6 \
-        libasound2 libgbm1 libgtk-3-0 libnss3 libnspr4 libatk1.0-0 \
-        libatk-bridge2.0-0 libcups2 libdrm2 libdbus-1-3 libexpat1 \
+        libasound2t64 libgbm1 libgtk-3-0 libnss3 libnspr4 libatk1.0-0 \
+        libatk-bridge2.0-0 libcups2t64 libdrm2 libdbus-1-3 libexpat1 \
         libx11-xcb1 libxcb-dri3-0 libxss1 libxtst6 \
     && rm -rf /var/lib/apt/lists/*
 
